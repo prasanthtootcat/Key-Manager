@@ -6,8 +6,8 @@ cursor = db.cursor()
 
 #pr - private key of user
 #pu - public key of user
+# src is used to differentiate key insertion of group from user
 
-# src is used to differentiate key insertion of group and user
 def insert_key(userId, groupId, pu, pr, src):
     currentDT = datetime.datetime.now()
     if src == 'g':                      #incase of group key insertion
@@ -37,10 +37,16 @@ def delete_key(userId, groupId, src):
         val = groupId
 
     try:
-        tableExist = cursor.execute("SHOW TABLES LIKE '%s'" %(src))
-        if tableExist == 1:
+        srcTableExist = cursor.execute("SHOW TABLES LIKE '%s'" %(src))
+        if srcTableExist == 1:
             cursor.execute("DELETE FROM %s WHERE id='%s'" %(src, val))
+        
+        valTableExist = cursor.execute("SHOW TABLES LIKE '%s'" %(val))
+        if valTableExist == 1:
+            cursor.execute("DELETE FROM %s WHERE id='%s'" %(val, src))
+
         db.commit()
+
     except:
         print('Error in deletion of keys !!!')
         db.rollback()
